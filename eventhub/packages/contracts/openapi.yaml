@@ -110,6 +110,147 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
+  /orders:
+    post:
+      operationId: createOrder
+      summary: Створення нового замовлення (бронювання квитків)
+      tags: [orders]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRequest"
+      responses:
+        "201":
+          description: Замовлення успішно створено
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+        # 409 Conflict: Запит синтаксично правильний, але стан ресурсу змінився (конкуренція).
+        # Повторювати одразу сенсу немає, доки інший покупець утримує або купує місце.
+        # Проте згодом (після закінчення таймеру броні) статус ресурсу може змінитися на успішний.
+        "409":
+          description: Конфлікт ресурсів (місце вже утримується або зайняте)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                seatAlreadyHeld:
+                  value:
+                    type: /errors/seat-conflict
+                    title: Місце зайняте
+                    status: 409
+                    detail: Обране місце вже утримується або придбане іншим покупцем.
+
+        # 410 Gone: Подія скасована організатором. Доступ до ресурсу постійно закритий.
+        # Повторювати запит через хвилину, годину чи день немає сенсу — стан фінальний і термінальний.
+        "410":
+          description: Подія скасована
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                eventCancelled:
+                  value:
+                    type: /errors/event-cancelled
+                    title: Подію скасовано
+                    status: 410
+                    detail: Подія була скасована організатором і більше недоступна для замовлення.
+
+    get:
+      operationId: listOrders
+      summary: Перегляд списку замовлень поточного користувача
+      tags: [orders]
+      responses:
+        "200":
+          description: Список замовлень
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+
+  /orders/{orderId}:
+    get:
+      operationId: getOrder
+      summary: Перегляд деталей конкретного замовлення
+      tags: [orders]
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Деталі замовлення
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /orders/{orderId}/cancel:
+    post:
+      operationId: cancelOrder
+      summary: Скасування замовлення
+      tags: [orders]
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Замовлення успішно скасовано
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+        # 403 Forbidden: Клієнт автентифікований, але намагається скасувати чуже замовлення.
+        # Повторення запиту через хвилину не змінить прав доступу користувача автоматично.
+        "403":
+          description: Доступ заборонено
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                forbiddenCancellation:
+                  value:
+                    type: /errors/forbidden
+                    title: Недостатньо прав
+                    status: 403
+                    detail: Ви не можете скасувати чуже замовлення.
+
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+        # 409 Conflict: Замовлення вже було скасоване або завершене раніше (конфлікт станів).
+        # Повторювати той самий запит на скасування вже не потрібно.
+        "409":
+          description: Конфлікт стану замовлення
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                alreadyCancelled:
+                  value:
+                    type: /errors/order-state-conflict
+                    title: Неможливо скасувати замовлення
+                    status: 409
+                    detail: Замовлення вже було скасоване або завершене раніше.
+
 components:
   schemas:
     Event:
@@ -150,6 +291,25 @@ components:
         nextCursor:
           type: [string, "null"]
           description: Курсор наступної сторінки; null — сторінок більше немає
+
+    Order:
+      type: object
+      required: [id, eventId, status, createdAt, totalPrice]
+      properties:
+        id: { type: string, format: uuid }
+        eventId: { type: string, format: uuid }
+        status: { type: string, enum: [pending, confirmed, cancelled] }
+        createdAt: { type: string, format: date-time }
+        totalPrice: { $ref: "#/components/schemas/Money" }
+
+    CreateOrderRequest:
+      type: object
+      required: [eventId, seatIds]
+      properties:
+        eventId: { type: string, format: uuid }
+        seatIds:
+          type: array
+          items: { type: string, format: uuid }
 
     Problem:
       type: object
