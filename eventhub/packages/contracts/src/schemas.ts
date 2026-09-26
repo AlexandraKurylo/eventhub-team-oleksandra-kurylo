@@ -24,3 +24,16 @@ export const eventIdParam = z.object({
 });
 
 export type EventIdParam = z.infer<typeof eventIdParam>;
+
+export const createOrderSchema = z.object({
+  eventId: uuidLike,
+  seatIds: z.array(uuidLike).min(1, "Потрібно обрати хоча б одне місце"),
+});
+
+export type CreateOrderInput = z.infer<typeof createOrderSchema>;
+
+export const orderIdParamSchema = z.object({
+  orderId: uuidLike,
+});
+
+export type OrderIdParam = z.infer<typeof orderIdParamSchema>;
