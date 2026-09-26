@@ -4,6 +4,7 @@ import { LoggerModule } from "nestjs-pino";
 import { randomUUID } from "node:crypto";
 import { HealthModule } from "./health/health.module";
 import { CatalogModule } from "./catalog/catalog.module";
+import { OrdersModule } from "./orders/orders.module";
 import { ProblemFilter } from "./common/problem/problem.filter";
 
 @Module({
@@ -26,6 +27,7 @@ import { ProblemFilter } from "./common/problem/problem.filter";
     }),
     HealthModule,
     CatalogModule,
+    OrdersModule,
   ],
   providers: [
     {

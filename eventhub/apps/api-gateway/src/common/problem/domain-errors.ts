@@ -22,3 +22,40 @@ export class RequestValidationFailed extends DomainError {
     super("Помилка валідації вхідних даних");
   }
 }
+
+export class SeatConflictError extends Error {
+  constructor(detail: string = "Обране місце вже утримується або придбане іншим покупцем.") {
+    super(detail);
+    this.name = "SeatConflictError";
+  }
+}
+
+export class EventCancelledError extends Error {
+  constructor(
+    detail: string = "Подія була скасована організатором і більше недоступна для замовлення.",
+  ) {
+    super(detail);
+    this.name = "EventCancelledError";
+  }
+}
+
+export class ForbiddenCancellationError extends Error {
+  constructor(detail: string = "Ви не можете скасувати чуже замовлення.") {
+    super(detail);
+    this.name = "ForbiddenCancellationError";
+  }
+}
+
+export class OrderStateConflictError extends Error {
+  constructor(detail: string = "Замовлення вже було скасоване або завершене раніше.") {
+    super(detail);
+    this.name = "OrderStateConflictError";
+  }
+}
+
+export class OrderNotFoundError extends Error {
+  constructor(orderId: string) {
+    super(`Замовлення ${orderId} не знайдено.`);
+    this.name = "OrderNotFoundError";
+  }
+}

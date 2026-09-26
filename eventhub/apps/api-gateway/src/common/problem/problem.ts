@@ -1,4 +1,13 @@
-import { RequestValidationFailed, EventNotFound, InvalidCursor } from "./domain-errors";
+import {
+  RequestValidationFailed,
+  EventNotFound,
+  InvalidCursor,
+  SeatConflictError,
+  EventCancelledError,
+  ForbiddenCancellationError,
+  OrderStateConflictError,
+  OrderNotFoundError,
+} from "./domain-errors";
 import { HttpException } from "@nestjs/common";
 
 export interface ProblemBody {
@@ -28,11 +37,51 @@ export function toProblem(err: unknown): ProblemBody {
       detail: err.message,
     };
   }
+  if (err instanceof OrderNotFoundError) {
+    return {
+      type: "/errors/not-found",
+      title: "Замовлення не знайдено",
+      status: 404,
+      detail: err.message,
+    };
+  }
   if (err instanceof InvalidCursor) {
     return {
       type: "/errors/invalid-cursor",
       title: "Некоректний курсор",
       status: 400,
+      detail: err.message,
+    };
+  }
+  if (err instanceof SeatConflictError) {
+    return {
+      type: "/errors/seat-conflict",
+      title: "Місце зайняте",
+      status: 409,
+      detail: err.message,
+    };
+  }
+  if (err instanceof EventCancelledError) {
+    return {
+      type: "/errors/event-cancelled",
+      title: "Подію скасовано",
+      status: 410,
+      detail: err.message,
+    };
+  }
+  if (err instanceof ForbiddenCancellationError) {
+    return {
+      type: "/errors/forbidden",
+      title: "Недостатньо прав",
+      status: 403,
+      detail: err.message,
+    };
+  }
+  if (err instanceof OrderStateConflictError) {
+    return {
+      type: "/errors/order-state-conflict",
+      title: "Неможливо скасувати замовлення",
+      status: 409,
       detail: err.message,
     };
   }
