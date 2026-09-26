@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import type { OrdersRepository, Order } from "./orders.repository";
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { OrdersRepository, Order } from "./orders.repository";
 import { OrderNotFoundError, OrderStateConflictError } from "../common/problem/domain-errors";
 import { randomUUID } from "node:crypto";
 
