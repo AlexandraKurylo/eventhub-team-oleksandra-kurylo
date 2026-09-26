@@ -7,7 +7,7 @@ export function encodeCursor(pos: { startsAt: string; id: string }): string {
 export function decodeCursor(raw: string): { startsAt: string; id: string } {
   let decoded: string;
   try {
-    decoded = Buffer.from(raw, "base64url").toString("base64url"); // або просто base64 залежно від кодування
+    decoded = Buffer.from(raw, "base64url").toString("base64url");
   } catch {
     throw new InvalidCursor(raw);
   }
