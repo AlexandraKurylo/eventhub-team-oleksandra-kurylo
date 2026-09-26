@@ -1,6 +1,7 @@
 import type { PipeTransform, ArgumentMetadata } from "@nestjs/common";
-import { Injectable, BadRequestException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import type { ZodTypeAny } from "zod";
+import { RequestValidationFailed } from "../problem/domain-errors";
 
 function hasZodSchema(value: unknown): value is { zodSchema: ZodTypeAny } {
   return typeof value === "function" && "zodSchema" in value;
@@ -15,7 +16,7 @@ export class ZodValidationPipe implements PipeTransform {
     const result = dto.zodSchema.safeParse(value);
     if (result.success) return result.data;
 
-    throw new BadRequestException(
+    throw new RequestValidationFailed(
       result.error.issues.map((i) => ({
         field: i.path.join(".") || "(корінь)",
         code: i.code,
