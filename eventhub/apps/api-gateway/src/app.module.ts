@@ -6,6 +6,7 @@ import { HealthModule } from "./health/health.module";
 import { CatalogModule } from "./catalog/catalog.module";
 import { OrdersModule } from "./orders/orders.module";
 import { ProblemFilter } from "./common/problem/problem.filter";
+import { PrismaModule } from "./prisma/prisma.module";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ProblemFilter } from "./common/problem/problem.filter";
             : undefined,
       },
     }),
+    PrismaModule,
     HealthModule,
     CatalogModule,
     OrdersModule,

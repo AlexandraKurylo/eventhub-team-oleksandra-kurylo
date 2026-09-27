@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-
 import { EventRepository } from "./event.repository";
 import type { Event, EventPage, ListEventsQuery } from "@eventhub/contracts";
 import { encodeCursor, decodeCursor } from "./cursor";
