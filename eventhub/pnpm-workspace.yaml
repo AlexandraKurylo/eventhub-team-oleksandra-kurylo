@@ -6,4 +6,7 @@ engineStrict: true
 
 allowBuilds:
   esbuild: true
+  "@prisma/client": true
+  prisma: true
   "@scarf/scarf": false
+  workerd: true
