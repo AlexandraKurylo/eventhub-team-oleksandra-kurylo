@@ -1,18 +1,11 @@
 {
   "extends": "../../packages/config/tsconfig.base.json",
   "compilerOptions": {
-    // NestJS 11 працює як CommonJS-застосунок.
     "module": "CommonJS",
-    "moduleResolution": "node",
-
-    // Декоратори — основа Nest: @Module, @Controller, @Injectable.
-    // emitDecoratorMetadata потрібен для впровадження залежностей:
-    // саме звідти Nest дізнається типи параметрів конструктора.
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-
     "outDir": "./dist",
-    "baseUrl": "./",
+    "rootDir": "./src",
     "noEmit": false,
     "declaration": false,
     "types": ["node"]
